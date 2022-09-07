@@ -18,7 +18,6 @@ namespace Up2dateClient
         private readonly Func<SystemInfo> getSysInfo;
         private readonly Func<string> getDownloadLocation;
         private ClientState state;
-        private readonly CertificateManager certificateManager;
 
         public Client(ISettingsManager settingsManager, Func<string> getCertificate, ISetupManager setupManager, Func<SystemInfo> getSysInfo, Func<string> getDownloadLocation, EventLog eventLog = null)
         {
@@ -28,7 +27,6 @@ namespace Up2dateClient
             this.getSysInfo = getSysInfo ?? throw new ArgumentNullException(nameof(getSysInfo));
             this.getDownloadLocation = getDownloadLocation ?? throw new ArgumentNullException(nameof(getDownloadLocation));
             this.eventLog = eventLog;
-            this.certificateManager = new CertificateManager(this.settingsManager, this.eventLog);
         }
 
         public ClientState State
@@ -151,54 +149,44 @@ namespace Up2dateClient
             }      
             
             var filePath = Path.Combine(getDownloadLocation(), info.artifactFileName);
-            if (settingsManager.CheckSignature && !certificateManager.IsSigned(filePath))
-            {
-                File.Delete(filePath);
-                result.Message = "File not signed. File deleted";
-                result.Success = false;
-                WriteLogEntry(result.Message, info);
-                return;
-            }
 
-            if(settingsManager.InstallAppFromSelectedIssuer && !certificateManager.IsSignedByIssuer(filePath))
-            {
-                result.Message = "File not signed by selected issuer. File deleted";
-                result.Success = false;
-                File.Delete(filePath);
-                WriteLogEntry(result.Message, info);
-                return;
-            }
-
-            if (IsSupported(info))
-                WriteLogEntry("installing...", info);
+            WriteLogEntry("installing...", info);
+            
             var installPackageStatus = setupManager.InstallPackage(info.artifactFileName);
-            if (installPackageStatus != InstallPackageStatus.Ok)
+            if (installPackageStatus != InstallPackageResult.Success && installPackageStatus != InstallPackageResult.RestartNeeded)
             {
                 result.Message = "Installation failed.";
-                string additionalMessage = string.Empty;
+                string additionalMessage;
                 switch (installPackageStatus)
                 {
-                    case InstallPackageStatus.PackageUnavailable:
-                        additionalMessage = "Package Unavailable";
+                    case InstallPackageResult.PackageUnavailable:
+                        additionalMessage = "Package unavailable or unusable";
                         break;
-                    case InstallPackageStatus.TempDirectoryFail:
-                        additionalMessage = "Temporary Directory failed to create";
+                    case InstallPackageResult.FailedToInstallChocoPackage:
+                        additionalMessage = "Failed to install Choco package";
                         break;
-                    case InstallPackageStatus.InvalidChocoPackage:
-                        additionalMessage = "Package Data Cannot be Processed";
+                    case InstallPackageResult.ChocoNotInstalled:
+                        additionalMessage = "Chocolatey is not installed";
                         break;
-                    case InstallPackageStatus.FailedToInstallChocoPackage:
-                        additionalMessage = "Failed To Install Choco package";
+                    case InstallPackageResult.GeneralInstallationError:
+                        additionalMessage = "General installation error";
                         break;
-                    case InstallPackageStatus.ChocoNotInstalled:
-                        additionalMessage = "Chocolatey not installed";
+                    case InstallPackageResult.InstallationPackageIsNotSigned:
+                        additionalMessage = "Package is not signed. Deployment rejected";
+                        File.Delete(filePath);
                         break;
-                    case InstallPackageStatus.GeneralChocoError:
-                        additionalMessage = "General Choco Error";
+                    case InstallPackageResult.InstallationPackageIsNotSignedBySelectedIssuer:
+                        additionalMessage = "Package is not signed by any whitelisted issuer. Deployment rejected";
+                        File.Delete(filePath);
                         break;
-                    case InstallPackageStatus.PsScriptInvokeError:
-                        additionalMessage = "General Choco Error";
+                    case InstallPackageResult.PackageNotSupported:
+                        additionalMessage = "Package of this type is not supported";
                         break;
+                    case InstallPackageResult.CannotStartInstaller:
+                        additionalMessage = "Failed to start installer process";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
                 if (additionalMessage != string.Empty)

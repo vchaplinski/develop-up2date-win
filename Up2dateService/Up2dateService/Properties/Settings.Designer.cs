@@ -61,7 +61,7 @@ namespace Up2dateService.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".msi:.cert:.exe")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".msi:.nupkg")]
         public string PackageExtensionFilterList {
             get {
                 return ((string)(this["PackageExtensionFilterList"]));
@@ -116,6 +116,18 @@ namespace Up2dateService.Properties {
             }
             set {
                 this["UpgradeFlag"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PackageInProgress {
+            get {
+                return ((string)(this["PackageInProgress"]));
+            }
+            set {
+                this["PackageInProgress"] = value;
             }
         }
     }

@@ -34,6 +34,9 @@ namespace SimpleClientApp
         public bool CheckSignature { get => true; set => throw new System.NotImplementedException(); }
         public bool InstallAppFromSelectedIssuer { get => false; set => throw new System.NotImplementedException(); }
         public List<string> SelectedIssuers { get => new List<string>(); set => throw new System.NotImplementedException(); }
-        public string PackageInProgress { get; set; }
+        public string PackageInProgress { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public string DefaultChocoSources { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public SignatureVerificationLevel SignatureVerificationLevel { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public string CertificateThumbprint { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     }
 }

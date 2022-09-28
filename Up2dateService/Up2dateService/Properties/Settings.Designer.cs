@@ -8,9 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Up2dateService.Properties {
-    
-    
+namespace Up2dateService.Properties
+{
+
+
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
@@ -73,30 +74,6 @@ namespace Up2dateService.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("rts")]
-        public string SelectedIssuers {
-            get {
-                return ((string)(this["SelectedIssuers"]));
-            }
-            set {
-                this["SelectedIssuers"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool InstallAppFromSelectedIssuer {
-            get {
-                return ((bool)(this["InstallAppFromSelectedIssuer"]));
-            }
-            set {
-                this["InstallAppFromSelectedIssuer"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool CheckSignature {
             get {
@@ -128,6 +105,42 @@ namespace Up2dateService.Properties {
             }
             set {
                 this["PackageInProgress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://community.chocolatey.org/api/v2/")]
+        public string DefaultChocoSources {
+            get {
+                return ((string)(this["DefaultChocoSources"]));
+            }
+            set {
+                this["DefaultChocoSources"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SignedByAnyCertificate")]
+        public global::Up2dateShared.SignatureVerificationLevel SignatureVerificationLevel {
+            get {
+                return ((global::Up2dateShared.SignatureVerificationLevel)(this["SignatureVerificationLevel"]));
+            }
+            set {
+                this["SignatureVerificationLevel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CertificateThumbprint {
+            get {
+                return ((string)(this["CertificateThumbprint"]));
+            }
+            set {
+                this["CertificateThumbprint"] = value;
             }
         }
     }

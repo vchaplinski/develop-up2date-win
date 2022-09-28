@@ -1293,6 +1293,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_22A428BA1EA44ED799DB130A3B68D3DD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_22D5440C078EBD302B2DF5DB200BA372"
         "OwnerKey" = "8:_251BE027A6F24E1693C88BE8EF6674A4"
         "MsmSig" = "8:_UNDEFINED"
@@ -1373,12 +1379,6 @@
         {
         "MsmKey" = "8:_35020534539F07A1A976E7026FD1AC25"
         "OwnerKey" = "8:_251BE027A6F24E1693C88BE8EF6674A4"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_367E42211C7BAFBBE6CA6DB1E255D8C0"
-        "OwnerKey" = "8:_A892E60A46D243C58D68C48619724791"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -3813,14 +3813,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_816C2A696B1EA8BABFD5480D589F7BDA"
-        "OwnerKey" = "8:_A892E60A46D243C58D68C48619724791"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_816C2A696B1EA8BABFD5480D589F7BDA"
-        "OwnerKey" = "8:_367E42211C7BAFBBE6CA6DB1E255D8C0"
+        "MsmKey" = "8:_840A7FFF8FB2457AA288D9F5ED369D05"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -4996,24 +4990,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_367E42211C7BAFBBE6CA6DB1E255D8C0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_816C2A696B1EA8BABFD5480D589F7BDA"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_176C2242EC5F51061EBB5FCBCB7785E8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_98C009EE76457489DC5ABE4BC13E104A"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -5051,6 +5027,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_4999C06A4F9A64ADEEF80A5A285FCFC8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_176C2242EC5F51061EBB5FCBCB7785E8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -6338,6 +6320,20 @@
             "CustomActionData" = "8:"
             "Run64Bit" = "11:TRUE"
             }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_6655C1090CE94057A87EECAAA7A59E3D"
+            {
+            "Name" = "8:UpdateTrustedStore.vbs"
+            "Condition" = "8:"
+            "Object" = "8:_840A7FFF8FB2457AA288D9F5ED369D05"
+            "FileType" = "3:4"
+            "InstallAction" = "3:1"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:3"
+            "Identifier" = "8:_5025E854_F531_4FA7_909F_0F3402AABA32"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:[TARGETDIR]"
+            }
             "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_7E3CBB59ED364D239B84513472082E1C"
             {
             "Name" = "8:Primary output from Up2dateService (Active)"
@@ -7458,6 +7454,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_22A428BA1EA44ED799DB130A3B68D3DD"
+            {
+            "SourcePath" = "8:..\\Script\\ISRG_Root_X1.der"
+            "TargetName" = "8:ISRG_Root_X1.der"
+            "Tag" = "8:"
+            "Folder" = "8:_C816C0AAB0E04BC39744FDC550ED93C6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_22D5440C078EBD302B2DF5DB200BA372"
             {
             "AssemblyRegister" = "3:1"
@@ -7782,37 +7798,6 @@
                     }
                 }
             "SourcePath" = "8:System.Globalization.Calendars.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_444A693ED8EA4027BF886B7C64D5D65B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_367E42211C7BAFBBE6CA6DB1E255D8C0"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_367E42211C7BAFBBE6CA6DB1E255D8C0"
-                    {
-                    "Name" = "8:System.Management.Automation.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:System.Management.Automation.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_444A693ED8EA4027BF886B7C64D5D65B"
@@ -9597,23 +9582,12 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_816C2A696B1EA8BABFD5480D589F7BDA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_840A7FFF8FB2457AA288D9F5ED369D05"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Microsoft.Management.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_816C2A696B1EA8BABFD5480D589F7BDA"
-                    {
-                    "Name" = "8:Microsoft.Management.Infrastructure.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Microsoft.Management.Infrastructure.dll"
-            "TargetName" = "8:"
+            "SourcePath" = "8:..\\Script\\UpdateTrustedStore.vbs"
+            "TargetName" = "8:UpdateTrustedStore.vbs"
             "Tag" = "8:"
-            "Folder" = "8:_444A693ED8EA4027BF886B7C64D5D65B"
+            "Folder" = "8:_C816C0AAB0E04BC39744FDC550ED93C6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9625,7 +9599,7 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8484112F6D4F654E8779AB0C5CD31D8F"
@@ -13063,15 +13037,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:RITMS UP2DATE Client"
-        "ProductCode" = "8:{C03665F3-2B06-4D68-B4A1-EA733959AA48}"
-        "PackageCode" = "8:{7644C240-2BF4-4529-BD1E-5990CEB4D6C7}"
+        "ProductCode" = "8:{DF27D632-9159-4AC0-BF38-8A8737A0C9B7}"
+        "PackageCode" = "8:{EC6001E8-04C7-4FD8-818E-4B07F68ECA66}"
         "UpgradeCode" = "8:{BB44110E-D2C1-4DAC-9D8C-FE9737D97AEB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.1"
+        "ProductVersion" = "8:1.1.0"
         "Manufacturer" = "8:RTSoft"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

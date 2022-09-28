@@ -42,23 +42,14 @@ namespace Up2dateService
             }
         }
 
-        public string CertificateSerialNumber
+        public string CertificateThumbprint
         {
-            get
+            get => Properties.Settings.Default.CertificateThumbprint;
+            set
             {
-                try
-                {
-                    // ReSharper disable PossibleNullReferenceException
-                    var value = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default).OpenSubKey("SOFTWARE").OpenSubKey("RTSoft").OpenSubKey("RITMS").OpenSubKey("UP2DATE").GetValue("Certificate") as string;
-                    return value;
-                    // ReSharper restore PossibleNullReferenceException
-                }
-                catch
-                {
-                    return string.Empty;
-                }
+                Properties.Settings.Default.CertificateThumbprint = value;
+                Properties.Settings.Default.Save();
             }
-            set => RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default).CreateSubKey("SOFTWARE")?.CreateSubKey("RTSoft")?.CreateSubKey("RITMS")?.CreateSubKey("UP2DATE")?.SetValue("Certificate", value);
         }
 
         public List<string> PackageExtensionFilterList
@@ -81,22 +72,12 @@ namespace Up2dateService
             }
         }
 
-        public bool InstallAppFromSelectedIssuer
+        public SignatureVerificationLevel SignatureVerificationLevel
         {
-            get => Properties.Settings.Default.InstallAppFromSelectedIssuer;
+            get => Properties.Settings.Default.SignatureVerificationLevel;
             set
             {
-                Properties.Settings.Default.InstallAppFromSelectedIssuer = value;
-                Properties.Settings.Default.Save();
-            }
-        }
-
-        public List<string> SelectedIssuers
-        {
-            get => Properties.Settings.Default.SelectedIssuers.Split(':').ToList();
-            set
-            {
-                Properties.Settings.Default.SelectedIssuers = string.Join(":", value);
+                Properties.Settings.Default.SignatureVerificationLevel = value;
                 Properties.Settings.Default.Save();
             }
         }
@@ -107,6 +88,16 @@ namespace Up2dateService
             set
             {
                 Properties.Settings.Default.PackageInProgress = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        public string DefaultChocoSources
+        {
+            get => Properties.Settings.Default.DefaultChocoSources;
+            set
+            {
+                Properties.Settings.Default.DefaultChocoSources = value;
                 Properties.Settings.Default.Save();
             }
         }

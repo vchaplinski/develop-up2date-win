@@ -83,13 +83,13 @@ namespace Up2dateShared
 
         private X509Certificate2Collection GetCertificates(X509Store store)
         {
-            string CertificateSerialNumber = settingsManager.CertificateSerialNumber;
+            string CertificateThumbprint = settingsManager.CertificateThumbprint;
 
-            if (string.IsNullOrEmpty(CertificateSerialNumber)) return null;
+            if (string.IsNullOrEmpty(CertificateThumbprint)) return null;
 
             store.Open(OpenFlags.ReadOnly);
             X509Certificate2Collection certificates = store.Certificates
-                    .Find(X509FindType.FindBySerialNumber, CertificateSerialNumber, false);
+                    .Find(X509FindType.FindByThumbprint, CertificateThumbprint, false);
             store.Close();
 
             return certificates;
@@ -112,7 +112,7 @@ namespace Up2dateShared
                 store.Close();
 
                 // remember new certificate
-                settingsManager.CertificateSerialNumber = cert.SerialNumber;
+                settingsManager.CertificateThumbprint = cert.Thumbprint;
             }
         }
 
@@ -124,47 +124,6 @@ namespace Up2dateShared
             if (string.IsNullOrEmpty(cnPart)) return string.Empty;
 
             return fullname.Substring(cnPrefix.Length);
-        }
-
-        public bool IsSigned(string file)
-        {
-            X509Certificate2 theCertificate;
-            try
-            {
-                X509Certificate theSigner = X509Certificate.CreateFromSignedFile(file);
-                theCertificate = new X509Certificate2(theSigner);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            var theCertificateChain = new X509Chain();
-            theCertificateChain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
-            theCertificateChain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
-            theCertificateChain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 1, 0);
-            theCertificateChain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
-
-            return theCertificateChain.Build(theCertificate);
-        }
-
-        public bool IsSignedByIssuer(string file)
-        {
-            const string cnPrefix = "CN=";
-            X509Certificate2 theCertificate;
-            try
-            {
-                X509Certificate theSigner = X509Certificate.CreateFromSignedFile(file);
-                theCertificate = new X509Certificate2(theSigner);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            if (theCertificate.IssuerName.Name == null) return false;
-            var issuerName = theCertificate.IssuerName.Name.Split(',').First().Substring(cnPrefix.Length);
-            return settingsManager.SelectedIssuers.Contains(issuerName);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Up2dateConsole.ServiceReference {
         private string DisplayVersionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int ErrorCodeField;
+        private Up2dateConsole.ServiceReference.InstallPackageResult ErrorCodeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> EstimatedSizeField;
@@ -94,7 +94,7 @@ namespace Up2dateConsole.ServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int ErrorCode {
+        public Up2dateConsole.ServiceReference.InstallPackageResult ErrorCode {
             get {
                 return this.ErrorCodeField;
             }
@@ -231,6 +231,38 @@ namespace Up2dateConsole.ServiceReference {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InstallPackageResult", Namespace="http://schemas.datacontract.org/2004/07/Up2dateShared")]
+    public enum InstallPackageResult : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Success = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PackageNotSupported = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PackageUnavailable = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        FailedToInstallChocoPackage = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        GeneralInstallationError = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChocoNotInstalled = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SignatureVerificationFailed = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RestartNeeded = 7,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        CannotStartInstaller = 8,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
@@ -654,6 +686,80 @@ namespace Up2dateConsole.ServiceReference {
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SignatureVerificationLevel", Namespace="http://schemas.datacontract.org/2004/07/Up2dateShared")]
+    public enum SignatureVerificationLevel : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SignedByAnyCertificate = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SignedByTrustedCertificate = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SignedByWhitelistedCertificate = 2,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Result", Namespace="http://RTSoft.Ritms.Up2date.win")]
+    [System.SerializableAttribute()]
+    public partial struct Result : System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ErrorMessageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool SuccessField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ErrorMessage {
+            get {
+                return this.ErrorMessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ErrorMessageField, value) != true)) {
+                    this.ErrorMessageField = value;
+                    this.RaisePropertyChanged("ErrorMessage");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool Success {
+            get {
+                return this.SuccessField;
+            }
+            set {
+                if ((this.SuccessField.Equals(value) != true)) {
+                    this.SuccessField = value;
+                    this.RaisePropertyChanged("Success");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServiceReference.IWcfService")]
     public interface IWcfService {
@@ -742,29 +848,35 @@ namespace Up2dateConsole.ServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetCheckSignature", ReplyAction="http://tempuri.org/IWcfService/SetCheckSignatureResponse")]
         System.Threading.Tasks.Task SetCheckSignatureAsync(bool newState);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetInstallAppFromSelectedIssuer", ReplyAction="http://tempuri.org/IWcfService/GetInstallAppFromSelectedIssuerResponse")]
-        bool GetInstallAppFromSelectedIssuer();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetSignatureVerificationLevel", ReplyAction="http://tempuri.org/IWcfService/GetSignatureVerificationLevelResponse")]
+        Up2dateConsole.ServiceReference.SignatureVerificationLevel GetSignatureVerificationLevel();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetInstallAppFromSelectedIssuer", ReplyAction="http://tempuri.org/IWcfService/GetInstallAppFromSelectedIssuerResponse")]
-        System.Threading.Tasks.Task<bool> GetInstallAppFromSelectedIssuerAsync();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetSignatureVerificationLevel", ReplyAction="http://tempuri.org/IWcfService/GetSignatureVerificationLevelResponse")]
+        System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.SignatureVerificationLevel> GetSignatureVerificationLevelAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetInstallAppFromSelectedIssuer", ReplyAction="http://tempuri.org/IWcfService/SetInstallAppFromSelectedIssuerResponse")]
-        void SetInstallAppFromSelectedIssuer(bool newState);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetSignatureVerificationLevel", ReplyAction="http://tempuri.org/IWcfService/SetSignatureVerificationLevelResponse")]
+        void SetSignatureVerificationLevel(Up2dateConsole.ServiceReference.SignatureVerificationLevel level);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetInstallAppFromSelectedIssuer", ReplyAction="http://tempuri.org/IWcfService/SetInstallAppFromSelectedIssuerResponse")]
-        System.Threading.Tasks.Task SetInstallAppFromSelectedIssuerAsync(bool newState);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetSignatureVerificationLevel", ReplyAction="http://tempuri.org/IWcfService/SetSignatureVerificationLevelResponse")]
+        System.Threading.Tasks.Task SetSignatureVerificationLevelAsync(Up2dateConsole.ServiceReference.SignatureVerificationLevel level);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetSelectedIssuers", ReplyAction="http://tempuri.org/IWcfService/GetSelectedIssuersResponse")]
-        string GetSelectedIssuers();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/IsCertificateValidAndTrusted", ReplyAction="http://tempuri.org/IWcfService/IsCertificateValidAndTrustedResponse")]
+        bool IsCertificateValidAndTrusted(string certificateFilePath);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetSelectedIssuers", ReplyAction="http://tempuri.org/IWcfService/GetSelectedIssuersResponse")]
-        System.Threading.Tasks.Task<string> GetSelectedIssuersAsync();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/IsCertificateValidAndTrusted", ReplyAction="http://tempuri.org/IWcfService/IsCertificateValidAndTrustedResponse")]
+        System.Threading.Tasks.Task<bool> IsCertificateValidAndTrustedAsync(string certificateFilePath);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetSelectedIssuers", ReplyAction="http://tempuri.org/IWcfService/SetSelectedIssuersResponse")]
-        void SetSelectedIssuers(string selectedIssuers);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetWhitelistedCertificates", ReplyAction="http://tempuri.org/IWcfService/GetWhitelistedCertificatesResponse")]
+        string[] GetWhitelistedCertificates();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/SetSelectedIssuers", ReplyAction="http://tempuri.org/IWcfService/SetSelectedIssuersResponse")]
-        System.Threading.Tasks.Task SetSelectedIssuersAsync(string selectedIssuers);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetWhitelistedCertificates", ReplyAction="http://tempuri.org/IWcfService/GetWhitelistedCertificatesResponse")]
+        System.Threading.Tasks.Task<string[]> GetWhitelistedCertificatesAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/AddCertificateToWhitelist", ReplyAction="http://tempuri.org/IWcfService/AddCertificateToWhitelistResponse")]
+        Up2dateConsole.ServiceReference.Result AddCertificateToWhitelist(string certificateFilePath);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/AddCertificateToWhitelist", ReplyAction="http://tempuri.org/IWcfService/AddCertificateToWhitelistResponse")]
+        System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.Result> AddCertificateToWhitelistAsync(string certificateFilePath);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -906,36 +1018,44 @@ namespace Up2dateConsole.ServiceReference {
             return base.Channel.SetCheckSignatureAsync(newState);
         }
         
-        public bool GetInstallAppFromSelectedIssuer() {
-            return base.Channel.GetInstallAppFromSelectedIssuer();
+        public Up2dateConsole.ServiceReference.SignatureVerificationLevel GetSignatureVerificationLevel() {
+            return base.Channel.GetSignatureVerificationLevel();
         }
         
-        public System.Threading.Tasks.Task<bool> GetInstallAppFromSelectedIssuerAsync() {
-            return base.Channel.GetInstallAppFromSelectedIssuerAsync();
+        public System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.SignatureVerificationLevel> GetSignatureVerificationLevelAsync() {
+            return base.Channel.GetSignatureVerificationLevelAsync();
         }
         
-        public void SetInstallAppFromSelectedIssuer(bool newState) {
-            base.Channel.SetInstallAppFromSelectedIssuer(newState);
+        public void SetSignatureVerificationLevel(Up2dateConsole.ServiceReference.SignatureVerificationLevel level) {
+            base.Channel.SetSignatureVerificationLevel(level);
         }
         
-        public System.Threading.Tasks.Task SetInstallAppFromSelectedIssuerAsync(bool newState) {
-            return base.Channel.SetInstallAppFromSelectedIssuerAsync(newState);
+        public System.Threading.Tasks.Task SetSignatureVerificationLevelAsync(Up2dateConsole.ServiceReference.SignatureVerificationLevel level) {
+            return base.Channel.SetSignatureVerificationLevelAsync(level);
         }
         
-        public string GetSelectedIssuers() {
-            return base.Channel.GetSelectedIssuers();
+        public bool IsCertificateValidAndTrusted(string certificateFilePath) {
+            return base.Channel.IsCertificateValidAndTrusted(certificateFilePath);
         }
         
-        public System.Threading.Tasks.Task<string> GetSelectedIssuersAsync() {
-            return base.Channel.GetSelectedIssuersAsync();
+        public System.Threading.Tasks.Task<bool> IsCertificateValidAndTrustedAsync(string certificateFilePath) {
+            return base.Channel.IsCertificateValidAndTrustedAsync(certificateFilePath);
         }
         
-        public void SetSelectedIssuers(string selectedIssuers) {
-            base.Channel.SetSelectedIssuers(selectedIssuers);
+        public string[] GetWhitelistedCertificates() {
+            return base.Channel.GetWhitelistedCertificates();
         }
         
-        public System.Threading.Tasks.Task SetSelectedIssuersAsync(string selectedIssuers) {
-            return base.Channel.SetSelectedIssuersAsync(selectedIssuers);
+        public System.Threading.Tasks.Task<string[]> GetWhitelistedCertificatesAsync() {
+            return base.Channel.GetWhitelistedCertificatesAsync();
+        }
+        
+        public Up2dateConsole.ServiceReference.Result AddCertificateToWhitelist(string certificateFilePath) {
+            return base.Channel.AddCertificateToWhitelist(certificateFilePath);
+        }
+        
+        public System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.Result> AddCertificateToWhitelistAsync(string certificateFilePath) {
+            return base.Channel.AddCertificateToWhitelistAsync(certificateFilePath);
         }
     }
 }

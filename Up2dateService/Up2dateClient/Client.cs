@@ -171,13 +171,9 @@ namespace Up2dateClient
                     case InstallPackageResult.GeneralInstallationError:
                         additionalMessage = "General installation error";
                         break;
-                    case InstallPackageResult.InstallationPackageIsNotSigned:
-                        additionalMessage = "Package is not signed. Deployment rejected";
-                        File.Delete(filePath);
-                        break;
-                    case InstallPackageResult.InstallationPackageIsNotSignedBySelectedIssuer:
-                        additionalMessage = "Package is not signed by any whitelisted issuer. Deployment rejected";
-                        File.Delete(filePath);
+                    case InstallPackageResult.SignatureVerificationFailed:
+                        additionalMessage = "Signature verification for the package is failed. " + 
+                            $"Requested level: {settingsManager.SignatureVerificationLevel}. Deployment rejected";
                         break;
                     case InstallPackageResult.PackageNotSupported:
                         additionalMessage = "Package of this type is not supported";

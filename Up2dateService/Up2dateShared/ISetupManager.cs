@@ -7,10 +7,13 @@ namespace Up2dateShared
         List<Package> GetAvaliablePackages();
         InstallPackageResult InstallPackage(string packageFile);
         void InstallPackages(IEnumerable<Package> packages);
-        bool IsPackageAvailable(string packageFile);
-        bool IsPackageInstalled(string packageFile);
         void OnDownloadStarted(string artifactFileName);
         void OnDownloadFinished(string artifactFileName);
         bool IsFileSupported(string artifactFileName);
+
+        /// <summary>
+        /// Gets collection of package extensions suppoted by SetupManager
+        /// </summary>
+        IEnumerable<string> SupportedExtensions { get; }
     }
 }

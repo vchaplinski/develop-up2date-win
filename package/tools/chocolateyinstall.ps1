@@ -23,6 +23,7 @@ $packageArgs = @{
 [array]$key = Get-UninstallRegistryKey -SoftwareName $packageArgs['softwareName']
 
 if ($key.Count -eq 1) {
+  Stop-Process -Name "Up2dateConsole"
   Stop-Service -Name "Up2dateService"
   sc.exe delete Up2dateService
 }

@@ -78,6 +78,7 @@ namespace Up2dateConsole
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TaskbarIcon));
                 OnPropertyChanged(nameof(TaskbarIconText));
+                OnPropertyChanged(nameof(IsDeviceIdAvailable));
                 StateIndicator.SetState(value);
                 ThreadHelper.SafeInvoke(CommandManager.InvalidateRequerySuggested);
             }
@@ -96,7 +97,7 @@ namespace Up2dateConsole
             }
         }
 
-        public bool IsDeviceIdAvailable => !string.IsNullOrEmpty(DeviceId);
+        public bool IsDeviceIdAvailable => !string.IsNullOrEmpty(DeviceId) && ServiceState == ServiceState.Active;
 
         public string MsiFolder
         {
@@ -117,10 +118,7 @@ namespace Up2dateConsole
                 if (operationInProgress == value) return;
                 operationInProgress = value;
                 OnPropertyChanged();
-                if (operationInProgress)
-                {
-                    ServiceState = ServiceState.Accessing;
-                }
+                StateIndicator.IsBusy = operationInProgress;
             }
         }
 
@@ -151,7 +149,7 @@ namespace Up2dateConsole
             if (success)
             {
                 await ExecuteRefresh();
-                if (ServiceState == ServiceState.ServerUnaccessible)
+                if (ServiceState == ServiceState.AuthorizationError)
                 {
                     string message = string.Format(GetText(Texts.BadCertificateMessage), vm.DeviceId);
                     viewService.ShowMessageBox(message);
@@ -208,7 +206,9 @@ namespace Up2dateConsole
         private bool CanInstall(object _)
         {
             List<PackageItem> selected = AvailablePackages.Where(p => p.IsSelected).ToList();
-            return selected.Any() && selected.All(p => p.Package.Status == PackageStatus.Downloaded || p.Package.Status == PackageStatus.Failed);
+            return selected.Any() && selected.All(p => p.Package.Status == PackageStatus.Downloaded
+                                                    || p.Package.Status == PackageStatus.SuggestedToInstall
+                                                    || p.Package.Status == PackageStatus.Failed);
         }
 
         private async void ExecuteInstall(object _)
@@ -217,7 +217,9 @@ namespace Up2dateConsole
             IWcfService service = null;
 
             Package[] selectedPackages = AvailablePackages
-                .Where(p => p.IsSelected && (p.Package.Status == PackageStatus.Downloaded || p.Package.Status == PackageStatus.Failed))
+                .Where(p => p.IsSelected && (p.Package.Status == PackageStatus.Downloaded
+                                            || p.Package.Status == PackageStatus.SuggestedToInstall
+                                            || p.Package.Status == PackageStatus.Failed))
                 .Select(p => p.Package)
                 .ToArray();
             try
@@ -225,6 +227,7 @@ namespace Up2dateConsole
                 service = wcfClientFactory.CreateClient();
                 await service.StartInstallationAsync(selectedPackages);
                 ServiceState = ServiceState.Active;
+                StateIndicator.SetInfo($"{GetText(Texts.Active)}");
             }
             catch (System.ServiceModel.EndpointNotFoundException)
             {
@@ -274,7 +277,7 @@ namespace Up2dateConsole
             catch (Exception e)
             {
                 ServiceState = ServiceState.ClientUnaccessible;
-                StateIndicator.SetInfo($"GetText(Texts.ServiceAccessError)\n{e.Message}\n\n{e.StackTrace}");
+                StateIndicator.SetInfo($"{GetText(Texts.ServiceAccessError)}\n{e.Message}\n\n{e.StackTrace}");
                 DeviceId = null;
                 OperationInProgress = false;
                 return;
@@ -290,7 +293,7 @@ namespace Up2dateConsole
             foreach (Package p in packages)
             {
                 bool wasSelected = selected.Any(s => s.Filepath.Equals(p.Filepath, StringComparison.InvariantCultureIgnoreCase));
-                packageItems.Add(new PackageItem(p, ConvertToString) { IsSelected = wasSelected });
+                packageItems.Add(new PackageItem(p, viewService) { IsSelected = wasSelected });
             }
 
             if (!firstTimeRefresh)
@@ -316,31 +319,6 @@ namespace Up2dateConsole
             }
 
             OperationInProgress = false;
-        }
-
-        private string ConvertToString(PackageStatus status)
-        {
-            switch (status)
-            {
-                case PackageStatus.Unavailable:
-                    return GetText(Texts.PackageStatusUnavailable);
-                case PackageStatus.Available:
-                    return GetText(Texts.PackageStatusAvailable);
-                case PackageStatus.Downloading:
-                    return GetText(Texts.PackageStatusDownloading);
-                case PackageStatus.Downloaded:
-                    return GetText(Texts.PackageStatusDownloaded);
-                case PackageStatus.Installing:
-                    return GetText(Texts.PackageStatusInstalling);
-                case PackageStatus.Installed:
-                    return GetText(Texts.PackageStatusInstalled);
-                case PackageStatus.RestartNeeded:
-                    return GetText(Texts.PackageStatusRestartNeeded);
-                case PackageStatus.Failed:
-                    return GetText(Texts.PackageStatusFailed);
-                default:
-                    return GetText(Texts.PackageStatusUnknown);
-            }
         }
 
         private void PromptIfCertificateNotAvailable()
@@ -371,14 +349,19 @@ namespace Up2dateConsole
             {
                 case ClientStatus.Running:
                     ServiceState = ServiceState.Active;
+                    StateIndicator.SetInfo($"{GetText(Texts.Active)}");
                     break;
                 case ClientStatus.Stopped:
                     ServiceState = ServiceState.Error;
-                    StateIndicator.SetInfo($"{GetText(Texts.CertificateNotAvailable)} {clientState.LastError}");
+                    StateIndicator.SetInfo($"{GetText(Texts.UnexpectedStop)} {clientState.LastError}");
                     break;
-                case ClientStatus.CannotAccessServer:
-                    ServiceState = ServiceState.ServerUnaccessible;
-                    StateIndicator.SetInfo($"{GetText(Texts.CertificateNotAvailable)} {clientState.LastError}");
+                case ClientStatus.Reconnecting:
+                    ServiceState = ServiceState.Error;
+                    StateIndicator.SetInfo($"{GetText(Texts.Reconnecting)}");
+                    break;
+                case ClientStatus.AuthorizationError:
+                    ServiceState = ServiceState.AuthorizationError;
+                    StateIndicator.SetInfo($"{GetText(Texts.AuthorizationError)} {clientState.LastError}");
                     break;
                 case ClientStatus.NoCertificate:
                     ServiceState = ServiceState.NoCertificate;
@@ -407,6 +390,13 @@ namespace Up2dateConsole
             if (downloaded.Any())
             {
                 TryShowToastNotification(Texts.NewPackageAvailable, downloaded.Select(p => p.ProductName));
+            }
+
+            var suggested = SelectChangedItems(oldStatus => oldStatus == PackageStatus.Unavailable || oldStatus == PackageStatus.Downloading || oldStatus == PackageStatus.Downloaded,
+                                                newStatus => newStatus == PackageStatus.SuggestedToInstall);
+            if (suggested.Any())
+            {
+                TryShowToastNotification(Texts.NewPackageSuggested, suggested.Select(p => p.ProductName));
             }
 
             var failed = SelectChangedItems(oldStatus => oldStatus != PackageStatus.Failed,
@@ -454,14 +444,13 @@ namespace Up2dateConsole
                 {
                     case ServiceState.Active:
                     case ServiceState.Unknown:
-                    case ServiceState.Accessing:
                         iconPath = "/Images/Active.ico";
                         break;
                     case ServiceState.ClientUnaccessible:
                         iconPath = "/Images/ClientUnaccessible.ico";
                         break;
                     case ServiceState.NoCertificate:
-                    case ServiceState.ServerUnaccessible:
+                    case ServiceState.AuthorizationError:
                         iconPath = "/Images/ServerUnaccessible.ico";
                         break;
                     case ServiceState.Error:
@@ -485,16 +474,19 @@ namespace Up2dateConsole
                     case ServiceState.NoCertificate:
                         extraText = GetText(Texts.NoCertificate);
                         break;
-                    case ServiceState.ServerUnaccessible:
-                        extraText = GetText(Texts.ServerUnaccessible);
+                    case ServiceState.AuthorizationError:
+                        extraText = GetText(Texts.AuthorizationError);
                         break;
                     case ServiceState.Error:
                         extraText = GetText(Texts.AgentOrServerFilure);
                         break;
+                    case ServiceState.Unknown:
+                    case ServiceState.Active:
                     default:
                         break;
                 }
-                return "RITMS UP2DATE" + (string.IsNullOrEmpty(extraText) ? string.Empty : "\n" + extraText);
+                System.Version v = Assembly.GetEntryAssembly().GetName().Version;
+                return $"RITMS UP2DATE v{v.Major}.{v.Minor}.{v.Build}" + (string.IsNullOrEmpty(extraText) ? string.Empty : "\n" + extraText);
             }
         }
 

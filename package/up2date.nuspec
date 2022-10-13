@@ -1,14 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Read this before creating packages: https://docs.chocolatey.org/en-us/create/create-packages -->
 <!-- It is especially important to read the above link to understand additional requirements when publishing packages to the community feed aka dot org (https://community.chocolatey.org/packages). -->
 <!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>up2date</id>
-    <version>1.1.1</version>
+    <version>2.0.0</version>
     <packageSourceUrl>https://github.com/rtsoft-gmbh/up2date-win</packageSourceUrl>
     <owners>RTSoft</owners>
-    <title>RITMS UP2DATE</title>
+    <title>RITMS UP2DATE Client</title>
     <authors>RTSoft</authors>
     <projectUrl>https://ritms.online/up2date</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/rtsoft-gmbh/up2date-win/master/Up2dateService/Up2dateConsole/Images/Logo.ico</iconUrl>
@@ -17,11 +17,20 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <bugTrackerUrl>https://github.com/rtsoft-gmbh/up2date-win/issues</bugTrackerUrl>
     <tags>up2date</tags>
-    <summary>Up2Date Client</summary>
-    <description>RITMS UP2DATE is a cloud ready solution for unified software and firmware management. Use this for implementing lifecycle management for the full stack of drivers and firmware of connected devices.</description>
+    <summary>RITMS UP2DATE Client</summary>
+    <description>RITMS UP2DATE is a cloud ready solution for unified software and firmware management.
+
+RITMS UP2DATE is based on open and worldwide adopted building blocks, the most important is Eclipse Hawkbit which provides open and flexible Direct Device Integration (DDI) API and Management API.
+
+RITMS UP2DATE extends Eclipse Hawkbit API with zero-cost maintenance device provisioning based on X509 certificates. The Public Key Infrastructure deployed to cloud governs digital certificates to secure end-to-end communications. Devices are automatically provisioned to connect the update service in a secure way.
+
+This UP2DATE CLIENT for Windows is a reference implementation of general purpose client service.
+
+BASIC USE CASE:
+Rollout any software deployment packaged as MSI (or, optionally choco nuget package) to all connected PCs.</description>
     <dependencies>
-      <dependency id="dotnetfx" />
-      <dependency id="vcredist140" />
+      <dependency id="dotnetfx" version="4.7.2.0"/>
+      <dependency id="vcredist140" version="14.32.31326"/>
     </dependencies>
   </metadata>
   <files>

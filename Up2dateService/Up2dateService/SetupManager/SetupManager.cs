@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using Up2dateService.Interfaces;
 using Up2dateShared;
 
@@ -16,8 +17,6 @@ namespace Up2dateService.SetupManager
         private readonly List<Package> packages = new List<Package>();
         private readonly object packagesLock = new object();
         private readonly ISettingsManager settingsManager;
-
-        public IEnumerable<string> SupportedExtensions => installerFactory.SupportedExtensions;
 
         public SetupManager(ILogger logger, Func<string> downloadLocationProvider, ISettingsManager settingsManager,
             IPackageInstallerFactory installerFactory, IPackageValidatorFactory validatorFactory)
@@ -39,58 +38,135 @@ namespace Up2dateService.SetupManager
 
         public InstallPackageResult InstallPackage(string packageFile)
         {
-            var package = FindPackage(packageFile);
-            var result = InstallPackage(ref package);
-            UpdatePackageStatus(ref package, result);
-            SafeUpdatePackage(package);
-            SafeRefreshPackageList();
-
-            return result;
+            var package = SafeFindPackage(packageFile);
+            return InstallPackage(package);
         }
 
         public void InstallPackages(IEnumerable<Package> packagesToInstall)
         {
             foreach (string inPackage in packagesToInstall.Where(p => installerFactory.IsInstallerAvailable(p)).Select(inPackage => inPackage.Filepath))
             {
-                var lockedPackages = SafeGetPackages();
-
-                Package package = lockedPackages.FirstOrDefault(p => p.Filepath.Equals(inPackage, StringComparison.InvariantCultureIgnoreCase));
+                Package package = SafeFindPackage(inPackage);
                 if (package.Status == PackageStatus.Unavailable) continue;
 
-                package.ErrorCode = InstallPackageResult.Success;
-                package.Status = PackageStatus.Installing;
-
-                SafeUpdatePackage(package);
-
-                var result = InstallPackage(ref package);
-                UpdatePackageStatus(ref package, result);
-                SafeUpdatePackage(package);
-                SafeRefreshPackageList();
+                InstallPackage(package);
             }
         }
 
-        public void OnDownloadStarted(string artifactFileName)
+        public bool IsFileSupported(string artifactFileName)
+        {
+            return installerFactory.IsInstallerAvailable(artifactFileName);
+        }
+
+        public bool IsFileDownloaded(string artifactFileName, string artifactFileHashMd5)
+        {
+            SafeRefreshPackageList();
+            Package package = SafeFindPackage(artifactFileName);
+            if (package.Status == PackageStatus.Unavailable || package.Status == PackageStatus.Downloading) return false;
+
+            bool isMd5OK = CheckMD5(package.Filepath, artifactFileHashMd5).Success;
+
+            return isMd5OK;
+        }
+
+        public bool IsPackageInstalled(string artifactFileName)
+        {
+            SafeRefreshPackageList();
+            return SafeFindPackage(artifactFileName).Status == PackageStatus.Installed;
+        }
+
+        public void MarkPackageAsSuggested(string artifactFileName)
+        {
+            Package package = SafeFindPackage(artifactFileName);
+            if (package.Status == PackageStatus.Downloaded)
+            {
+                package.Status = PackageStatus.SuggestedToInstall;
+                SafeUpdatePackage(package);
+            }
+        }
+
+        public PackageStatus GetStatus(string artifactFileName)
+        {
+            SafeRefreshPackageList();
+            return SafeFindPackage(artifactFileName).Status;
+        }
+
+        public InstallPackageResult GetInstallPackageResult(string artifactFileName)
+        {
+            SafeRefreshPackageList();
+            return SafeFindPackage(artifactFileName).ErrorCode;
+        }
+
+        public Result DownloadPackage(string artifactFileName, string artifactFileHashMd5, Action<string> downloadArtifact)
         {
             // add temporary "downloading" package item
             var package = new Package
             {
                 Status = PackageStatus.Downloading,
                 ErrorCode = InstallPackageResult.Success,
-            Filepath = Path.Combine(downloadLocationProvider(), artifactFileName)
+                Filepath = Path.Combine(downloadLocationProvider(), artifactFileName)
             };
             SafeAddOrUpdatePackage(package);
+
+            try
+            {
+                downloadArtifact(downloadLocationProvider());
+                Result checkResult = CheckMD5(package.Filepath, artifactFileHashMd5);
+                if (!checkResult.Success)
+                {
+                    return Result.Failed($"MD5 verification failed. {checkResult.ErrorMessage}");
+                }
+            }
+            catch (Exception e)
+            {
+                return Result.Failed(e.Message);
+            }
+            finally
+            {
+                // remove temporary "downloading" package item, so refresh would be able to add "downloaded" package item instead
+                SafeRemovePackage(Path.Combine(downloadLocationProvider(), artifactFileName), PackageStatus.Downloading);
+                SafeRefreshPackageList();
+            }
+
+            return Result.Successful();
         }
 
-        public void OnDownloadFinished(string artifactFileName)
+        static private Result CheckMD5(string filename, string md5hex)
         {
-            // remove temporary "downloading" package item, so refresh would be able to add "downloaded" package item instead
-            SafeRemovePackage(Path.Combine(downloadLocationProvider(), artifactFileName), PackageStatus.Downloading);
+            using (var md5 = MD5.Create())
+            {
+                try
+                {
+                    using (var stream = File.OpenRead(filename))
+                    {
+                        var hash = md5.ComputeHash(stream);
+                        if (BitConverter.ToString(hash).Replace("-", "").Equals(md5hex, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            return Result.Successful();
+                        }
+                        return Result.Failed();
+                    }
+                }
+                catch (Exception e)
+                {
+                    return Result.Failed(e.Message);
+                }
+            }
+        }
+
+        private InstallPackageResult InstallPackage(Package package)
+        {
+            package.ErrorCode = InstallPackageResult.Success;
+            package.Status = PackageStatus.Installing;
+            SafeUpdatePackage(package);
+
+            var result = InstallPackage(ref package);
+
+            UpdatePackageStatus(ref package, result);
+            SafeUpdatePackage(package);
             SafeRefreshPackageList();
-        }
 
-        public bool IsFileSupported(string artifactFileName)
-        {
-            return installerFactory.IsInstallerAvailable(artifactFileName);
+            return result;
         }
 
         private InstallPackageResult InstallPackage(ref Package package)
@@ -136,12 +212,19 @@ namespace Up2dateService.SetupManager
             }
 
             SetPackageInProgressFlag(package);
-            InstallPackageResult result = installer.InstallPackage(package, logFilePath);
-            if (result == InstallPackageResult.Success)
+            InstallPackageResult result;
+            try
             {
-                installer.UpdatePackageInfo(ref package);
+                result = installer.InstallPackage(package, logFilePath);
+                if (result == InstallPackageResult.Success)
+                {
+                    installer.UpdatePackageInfo(ref package);
+                }
             }
-            ClearPackageInProgressFlag();
+            finally
+            {
+                ClearPackageInProgressFlag();
+            }
 
             return result;
         }
@@ -161,9 +244,14 @@ namespace Up2dateService.SetupManager
             return string.Equals(package.ProductCode, settingsManager.PackageInProgress);
         }
 
+        private Package SafeFindPackage(string packageFile)
+        {
+            return SafeGetPackages().FirstOrDefault(p => Path.GetFileName(p.Filepath).Equals(Path.GetFileName(packageFile), StringComparison.InvariantCultureIgnoreCase));
+        }
+
         private Package FindPackage(string packageFile)
         {
-            return SafeGetPackages().FirstOrDefault(p => Path.GetFileName(p.Filepath).Equals(packageFile, StringComparison.InvariantCultureIgnoreCase));
+            return packages.FirstOrDefault(p => Path.GetFileName(p.Filepath).Equals(Path.GetFileName(packageFile), StringComparison.InvariantCultureIgnoreCase));
         }
 
         private List<Package> SafeGetPackages()
@@ -180,7 +268,7 @@ namespace Up2dateService.SetupManager
         {
             lock (packagesLock)
             {
-                Package original = packages.FirstOrDefault(p => p.Filepath.Equals(package.Filepath, StringComparison.InvariantCultureIgnoreCase));
+                Package original = FindPackage(package.Filepath);
                 if (original.Status != PackageStatus.Unavailable)
                 {
                     packages[packages.IndexOf(original)] = package;
@@ -192,8 +280,8 @@ namespace Up2dateService.SetupManager
         {
             lock (packagesLock)
             {
-                Package package = packages.FirstOrDefault(p => p.Status == status && p.Filepath.Equals(filepath, StringComparison.InvariantCultureIgnoreCase));
-                if (package.Status != PackageStatus.Unavailable)
+                Package package = FindPackage(filepath);
+                if (package.Status == status)
                 {
                     packages.Remove(package);
                 }
@@ -204,7 +292,7 @@ namespace Up2dateService.SetupManager
         {
             lock (packagesLock)
             {
-                Package original = packages.FirstOrDefault(p => p.Filepath.Equals(package.Filepath, StringComparison.InvariantCultureIgnoreCase));
+                Package original = FindPackage(package.Filepath);
                 if (original.Status == PackageStatus.Unavailable)
                 {
                     packages.Add(package);
@@ -248,14 +336,14 @@ namespace Up2dateService.SetupManager
 
                 foreach (string file in files)
                 {
-                        Package package = packages.FirstOrDefault(p => p.Filepath.Equals(file, StringComparison.InvariantCultureIgnoreCase));
+                    Package package = FindPackage(file);
                     if (!packages.Contains(package))
                     {
                         package.Filepath = file;
 
                         if (!installerFactory.IsInstallerAvailable(package)) continue;
 
-                            IPackageInstaller installer = installerFactory.GetInstaller(package);
+                        IPackageInstaller installer = installerFactory.GetInstaller(package);
                         if (!installer.Initialize(ref package)) continue;
 
                         package.Status = PackageStatus.Downloaded;
@@ -269,6 +357,10 @@ namespace Up2dateService.SetupManager
                 for (int i = 0; i < packages.Count; i++)
                 {
                     Package updatedPackage = packages[i];
+
+                    // Don't update package status while it is being installed - status may be invalid
+                    // (e.g. Choco reports product as installed at the very beginning of the installation process)
+                    if (IsSetPackageInProgressFlag(updatedPackage)) continue;
 
                     if (!installerFactory.IsInstallerAvailable(updatedPackage)) continue;
 
@@ -290,7 +382,8 @@ namespace Up2dateService.SetupManager
                         updatedPackage.EstimatedSize = null;
                         updatedPackage.UrlInfoAbout = null;
                         if (updatedPackage.Status != PackageStatus.Downloading 
-                            && updatedPackage.Status != PackageStatus.Installing 
+                            && updatedPackage.Status != PackageStatus.Installing
+                            && updatedPackage.Status != PackageStatus.SuggestedToInstall
                             && updatedPackage.Status != PackageStatus.Failed)
                         {
                             updatedPackage.Status = PackageStatus.Downloaded;

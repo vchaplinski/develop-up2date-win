@@ -282,16 +282,19 @@ namespace Up2dateConsole.ServiceReference {
         Downloaded = 3,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Installing = 4,
+        SuggestedToInstall = 4,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Installed = 5,
+        Installing = 5,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        RestartNeeded = 6,
+        Installed = 6,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Failed = 7,
+        RestartNeeded = 7,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Failed = 8,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -601,13 +604,16 @@ namespace Up2dateConsole.ServiceReference {
         Stopped = 0,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        CannotAccessServer = 1,
+        Reconnecting = 1,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Running = 2,
+        AuthorizationError = 2,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        NoCertificate = 3,
+        Running = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NoCertificate = 4,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -812,6 +818,12 @@ namespace Up2dateConsole.ServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/RequestCertificate", ReplyAction="http://tempuri.org/IWcfService/RequestCertificateResponse")]
         System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.ResultOfstring> RequestCertificateAsync(string oneTimeKey);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/ImportCertificate", ReplyAction="http://tempuri.org/IWcfService/ImportCertificateResponse")]
+        Up2dateConsole.ServiceReference.ResultOfstring ImportCertificate(string filePath);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/ImportCertificate", ReplyAction="http://tempuri.org/IWcfService/ImportCertificateResponse")]
+        System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.ResultOfstring> ImportCertificateAsync(string filePath);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IWcfService/GetRequestCertificateUrl", ReplyAction="http://tempuri.org/IWcfService/GetRequestCertificateUrlResponse")]
         string GetRequestCertificateUrl();
         
@@ -968,6 +980,14 @@ namespace Up2dateConsole.ServiceReference {
         
         public System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.ResultOfstring> RequestCertificateAsync(string oneTimeKey) {
             return base.Channel.RequestCertificateAsync(oneTimeKey);
+        }
+        
+        public Up2dateConsole.ServiceReference.ResultOfstring ImportCertificate(string filePath) {
+            return base.Channel.ImportCertificate(filePath);
+        }
+        
+        public System.Threading.Tasks.Task<Up2dateConsole.ServiceReference.ResultOfstring> ImportCertificateAsync(string filePath) {
+            return base.Channel.ImportCertificateAsync(filePath);
         }
         
         public string GetRequestCertificateUrl() {

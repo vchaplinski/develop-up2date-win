@@ -13948,7 +13948,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_251BE027A6F24E1693C88BE8EF6674A4"
             {
-            "SourcePath" = "8:..\\Up2dateConsole\\obj\\Debug\\Up2dateConsole.exe"
+            "SourcePath" = "8:..\\Up2dateConsole\\obj\\Release\\Up2dateConsole.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_444A693ED8EA4027BF886B7C64D5D65B"
@@ -13976,7 +13976,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A892E60A46D243C58D68C48619724791"
             {
-            "SourcePath" = "8:..\\Up2dateService\\obj\\Debug\\Up2dateService.exe"
+            "SourcePath" = "8:..\\Up2dateService\\obj\\Release\\Up2dateService.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_444A693ED8EA4027BF886B7C64D5D65B"
@@ -14053,6 +14053,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:LocalizedResourceDlls"
             "OutputProjectGuid" = "8:{06A754B8-B045-40FE-BADB-2F0469BC43BA}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E7891867FA32447BB5A7BD13C62396F4"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_444A693ED8EA4027BF886B7C64D5D65B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:ContentFiles"
+            "OutputProjectGuid" = "8:{4C1F9730-09E5-4694-864B-4B39AA93D813}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

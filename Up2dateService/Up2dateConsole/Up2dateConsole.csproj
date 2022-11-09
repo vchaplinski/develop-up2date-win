@@ -217,6 +217,7 @@
     <None Include="Localization\CheckAndGenerate.cmd" />
     <None Include="Localization\Up2dateConsole_ru-RU.csv" />
     <None Include="Localization\Update.cmd" />
+    <None Include="PostBuild.cmd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -255,7 +256,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)Localization\CheckAndGenerate.cmd" ru-RU $(TargetDir) $(TargetName) $(ProjectDir) $(ProjectName)
+    <PostBuildEvent>"$(ProjectDir)PostBuild.cmd" $(TargetDir) $(TargetName) $(TargetPath) $(ProjectDir) $(ProjectName)
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

@@ -105,5 +105,8 @@ namespace Up2dateService
 
         [OperationContract]
         Result DeletePackage(Package package);
+
+        [OperationContract]
+        void RestartClient();
     }
 }

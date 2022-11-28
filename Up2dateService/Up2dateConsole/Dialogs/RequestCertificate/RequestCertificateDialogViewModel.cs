@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Up2dateConsole.Helpers;
@@ -99,8 +100,6 @@ namespace Up2dateConsole.Dialogs.RequestCertificate
 
         public bool IsEnabled => !IsInProgress;
 
-        public string DeviceId { get; private set; }
-
         public bool ShowExplanation { get; }
 
         public bool IsSecureConnection
@@ -184,7 +183,6 @@ namespace Up2dateConsole.Dialogs.RequestCertificate
             IsInProgress = true;
 
             IWcfService service = null;
-            string certificateError = string.Empty;
             try
             {
                 service = wcfClientFactory.CreateClient();
@@ -198,23 +196,32 @@ namespace Up2dateConsole.Dialogs.RequestCertificate
                     if (!string.IsNullOrWhiteSpace(certFilePath))
                     {
                         result = await service.ImportCertificateAsync(certFilePath);
+                        if (!result.Success)
+                        {
+                            string message = viewService.GetText(Texts.FailedToLoadCertificate) + $"\n\n{result.ErrorMessage}";
+                            viewService.ShowMessageBox(message);
+                            return;
+                        }
                     }
                     else if (!string.IsNullOrWhiteSpace(OneTimeKey))
                     {
                         result = await service.RequestCertificateAsync(RemoveWhiteSpaces(OneTimeKey));
+                        if (!result.Success)
+                        {
+                            string message = viewService.GetText(Texts.FailedToAcquireCertificate) + $"\n\n{result.ErrorMessage}";
+                            viewService.ShowMessageBox(message);
+                            return;
+                        }
                     }
 
                     await service.SetupSecureConnectionAsync();
-
-                    if (!result.Success)
-                    {
-                        certificateError = result.ErrorMessage;
-                    }
-                    else
-                    {
-                        DeviceId = result.Value;
-                    }
                 }
+
+                await service.RestartClientAsync();
+
+                // TODO wait for actual success or exit by timeout!
+                await Task.Delay(8000);
+                Close(true);
             }
             catch (Exception e)
             {
@@ -227,45 +234,11 @@ namespace Up2dateConsole.Dialogs.RequestCertificate
                 wcfClientFactory.CloseClient(service);
                 IsInProgress = false;
             }
-
-            if (string.IsNullOrEmpty(certificateError))
-            {
-                IsInProgress = true;
-                await Task.Run(() => RestartService(20000));
-                await Task.Delay(5000);
-                Close(true);
-            }
-            else
-            {
-                string message = viewService.GetText(Texts.FailedToAcquireCertificate) + $"\n\n{certificateError}";
-                viewService.ShowMessageBox(message);
-            }
         }
 
         private static string RemoveWhiteSpaces(string str)
         {
             return new string(str.Where(c => !char.IsWhiteSpace(c)).ToArray());
-        }
-
-        public static void RestartService(int timeout)
-        {
-            ServiceController service = new ServiceController("Up2dateService");
-            try
-            {
-                int started = Environment.TickCount;
-                if (service.Status != ServiceControllerStatus.Stopped)
-                {
-                    service.Stop();
-                }
-                service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromMilliseconds(timeout));
-
-                int elapsed = Environment.TickCount - started;
-                service.Start();
-                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(timeout - elapsed));
-            }
-            catch
-            {
-            }
         }
     }
 }

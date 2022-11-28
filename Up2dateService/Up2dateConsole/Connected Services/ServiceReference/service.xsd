@@ -413,4 +413,14 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="RestartClient">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RestartClientResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

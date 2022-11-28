@@ -46,6 +46,7 @@
     <clr:String x:Uid="clr:String_36" x:Key="Active">Active</clr:String>
 
     <clr:String x:Uid="clr:String_25" x:Key="FailedToAcquireCertificate">Failed to acquire certificate</clr:String>
+    <clr:String x:Key="FailedToLoadCertificate">Failed to load certificate</clr:String>
 
     <clr:String x:Uid="clr:String_26" x:Key="AddCertificateToWhiteList">Add Certificate to White List</clr:String>
     <clr:String x:Uid="clr:String_27" x:Key="InvalidCertificateForWhiteList">This certificate is not valid or not trusted. Are you sure you want to add it to whitelist?</clr:String>

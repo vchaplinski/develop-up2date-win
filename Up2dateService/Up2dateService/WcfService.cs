@@ -245,5 +245,10 @@ namespace Up2dateService
         {
             return setupManager.DeletePackage(package);
         }
+
+        public void RestartClient()
+        {
+            client.RequestStop();
+        }
     }
 }
